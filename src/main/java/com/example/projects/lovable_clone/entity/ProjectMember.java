@@ -1,21 +1,36 @@
 package com.example.projects.lovable_clone.entity;
 
 import com.example.projects.lovable_clone.enums.ProjectRole;
-import lombok.AccessLevel;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Builder
+@Table(name = "project_members")
 public class ProjectMember {
 
-    ProjectMember id;
+    @EmbeddedId // makes a primary key out of the composite key
+    ProjectMemberId id;
 
+    @ManyToOne
+    @MapsId("projectId")
     Project project;
 
+    @ManyToOne
+    @MapsId("userId")
     User user;
 
-    ProjectRole role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    ProjectRole projectRole;
 
     Instant invitedAt;
 

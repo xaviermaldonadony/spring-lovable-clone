@@ -4,7 +4,6 @@ package com.example.projects.lovable_clone.controller;
 import com.example.projects.lovable_clone.dto.member.InviteMemberRequest;
 import com.example.projects.lovable_clone.dto.member.MemberResponse;
 import com.example.projects.lovable_clone.dto.member.updateMemberRoleRequest;
-import com.example.projects.lovable_clone.entity.ProjectMember;
 import com.example.projects.lovable_clone.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public class ProjectMemberController {
     private final ProjectMemberService projectMemberService;
 
     @GetMapping
-    public ResponseEntity<List<ProjectMember>> getProjectMembers(@PathVariable Long projectId) {
+    public ResponseEntity<List<MemberResponse>> getProjectMembers(@PathVariable Long projectId) {
         Long userId = 1L;
 
         return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId, userId));
@@ -50,11 +49,13 @@ public class ProjectMemberController {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<MemberResponse> delteProjectMember(
+    public ResponseEntity<Void> deleteMember(
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ){
         Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.delteProjectMember(projectId, memberId,  userId));
+        projectMemberService.removeProjectMember(projectId, memberId,  userId);
+
+        return ResponseEntity.noContent().build();
     }
 }
