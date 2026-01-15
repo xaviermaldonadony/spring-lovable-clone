@@ -15,7 +15,13 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Builder
-@Table(name = "projects")
+@Table(name = "projects",
+        indexes = {
+            @Index(name = "idx_projects_updated_at_desc", columnList = "updated_at DESC, deleted_at"),
+            @Index(name = "idx_projects_deleted_at_updated_at_desc", columnList = "deleted_at, updated_at DESC"),
+            @Index(name = "idx_projects_deleted_at", columnList = "deleted_at, updated_at DESC"),
+        }
+)
 public class Project {
 
     @Id
@@ -24,10 +30,6 @@ public class Project {
 
     @Column
     String name;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    User owner;
 
     Boolean isPublic = false;
 

@@ -8,11 +8,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public interface ProjectMemberService {
-    @Nullable List<MemberResponse> getProjectMembers(Long projectId, Long userId);
+    @Nullable List<MemberResponse> getProjectMembers(Long projectId);
 
-    MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId);
+    MemberResponse inviteMember(Long projectId, InviteMemberRequest request);
 
-    MemberResponse updateMemberRole(Long projectId, Long memberId, updateMemberRoleRequest request, Long userId);
+    MemberResponse updateMemberRole(Long projectId, Long memberId, updateMemberRoleRequest request);
 
-    void removeProjectMember(Long projectId, Long memberId, Long userId);
+    void removeProjectMember(Long projectId, Long memberId);
 }
