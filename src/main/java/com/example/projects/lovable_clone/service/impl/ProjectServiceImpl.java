@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -76,16 +77,17 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectResponse getUserProjectById(Long id) {
+    @PreAuthorize("@security.canViewProject(#projectId)")
+    public ProjectResponse getUserProjectById(Long projectId) {
         Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessbileProject(id, userId);
+        Project project = getAccessbileProjectById(projectId, userId);
         return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public ProjectResponse updateProject(Long id, ProjectRequest request) {
         Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessbileProject(id, userId);
+        Project project = getAccessbileProjectById(id, userId);
         project.setName(request.name());
         project = projectRepository.save(project);
 
@@ -95,13 +97,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void softDelete(Long id) {
         Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessbileProject(id, userId);
+        Project project = getAccessbileProjectById(id, userId);
 
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
     }
 
-    private  Project getAccessbileProject(Long projectId, Long userId){
+    private  Project getAccessbileProjectById(Long projectId, Long userId){
 
         return projectRepository.findAccessibleProjectById(projectId, userId).orElseThrow(
                 () -> new ResourceNotFoundException("Project not found", projectId.toString())

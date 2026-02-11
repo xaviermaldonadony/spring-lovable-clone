@@ -15,6 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+// Authentication
+// Will intercept all the requests before it goes to the controller
 @RequiredArgsConstructor
 @Slf4j
 @Component
@@ -30,6 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String requestHeaderToken = request.getHeader("Authorization");
         if (requestHeaderToken == null || !requestHeaderToken.startsWith("Bearer ")){
             filterChain.doFilter(request, response);
+            return;
         }
 
         String jwToken = requestHeaderToken.split("Bearer ")[1];
