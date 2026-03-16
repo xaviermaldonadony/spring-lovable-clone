@@ -18,7 +18,6 @@ public class Subscription {
     Plan plan;
     SubscriptionStatus status;
 
-    String stripeCustomerId;
 //  User can see subscription status in strip dashboard
     String stripeSubscriptionId;
 
