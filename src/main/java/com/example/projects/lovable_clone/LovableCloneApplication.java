@@ -12,4 +12,4 @@ public class LovableCloneApplication {
 
 }
 
-// SEC 5 - 2 live 1:35 min
+// 11 2:16

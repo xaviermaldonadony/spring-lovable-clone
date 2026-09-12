@@ -2,10 +2,10 @@ package com.example.projects.lovable_clone.dto.subscription;
 
 import java.time.Instant;
 
-public record SubscritionResponse(
+public record SubscriptionResponse(
     PlanResponse plan,
     String status,
-    Instant periodEnd,
+    Instant currentPeriodEnd,
     Long tokensUsedThisCycle
 ) {
 }
