@@ -6,7 +6,7 @@ import com.example.projects.lovable_clone.enums.SubscriptionStatus;
 import java.time.Instant;
 
 public interface SubscriptionService {
-    boolean canCreateNewProject() {}
+    boolean canCreateNewProject();
 
     SubscriptionResponse getCurrentSubscription();
 

@@ -43,10 +43,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
-        if (!SubscriptionService.canCreateNewProject())
+        if (!subscriptionService.canCreateNewProject())
             throw new BadRequestException("User cannot crate a new Project with ");
-    }
-
 
         Long userId = authUtil.getCurrentUserId();
 
