@@ -3,7 +3,8 @@ spring:
     name: lovable-clone
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/lovable
+    # url: jdbc:postgresql://localhost:5432/lovable
+    url: jdbc:postgresql://localhost:9010/pgvector-test
     username:
     password:
     driver-class-name: org.postgresql.Driver
@@ -25,6 +26,22 @@ spring:
         options:
           model: nvidia/nemotron-3-ultra-550b-a55b:free
           temperature:
-
 jwt:
   secret-key:
+
+stripe:
+  api:
+    secret-key:
+  webhook:
+    secret:
+    
+logging:
+  level:
+    org.springframework.ai:
+      chat.client: DEBUG
+
+minio:
+  endpoint: http://localhost:9000
+  access-key:
+  secret-key:
+  project-bucket: projects

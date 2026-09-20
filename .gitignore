@@ -34,3 +34,4 @@ build/
 
 ### yaml
 application.yaml
+services.docker-compose.yml
