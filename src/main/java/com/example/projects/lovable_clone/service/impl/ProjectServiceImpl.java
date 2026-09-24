@@ -16,6 +16,7 @@ import com.example.projects.lovable_clone.repository.ProjectRepository;
 import com.example.projects.lovable_clone.repository.UserRepository;
 import com.example.projects.lovable_clone.security.AuthUtil;
 import com.example.projects.lovable_clone.service.ProjectService;
+import com.example.projects.lovable_clone.service.ProjectTemplateService;
 import com.example.projects.lovable_clone.service.SubscriptionService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -37,6 +38,7 @@ public class ProjectServiceImpl implements ProjectService {
     UserRepository userRepository;
     ProjectMapper projectMapper;
     ProjectMemberRepository projectMemberRepository;
+    ProjectTemplateService projectTemplateService;
     SubscriptionService subscriptionService;
     AuthUtil authUtil;
 
@@ -72,6 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
 
         projectMember = projectMemberRepository.save(projectMember);
+        projectTemplateService.initializeProjectFromTemplate(project.getId());
 
         return projectMapper.toProjectResponse(project);
     }

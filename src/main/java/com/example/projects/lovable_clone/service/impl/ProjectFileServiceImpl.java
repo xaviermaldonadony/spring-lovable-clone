@@ -9,6 +9,7 @@ import com.example.projects.lovable_clone.mapper.ProjectFileMapper;
 import com.example.projects.lovable_clone.repository.ProjectFileRepository;
 import com.example.projects.lovable_clone.repository.ProjectRepository;
 import com.example.projects.lovable_clone.service.ProjectFileService;
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -27,36 +28,45 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProjectFileServiceImpl implements ProjectFileService {
-
     private final ProjectRepository projectRepository;
     private final ProjectFileRepository projectFileRepository;
     private final MinioClient minioClient;
-    private ProjectFileMapper projectFileMapper;
+    private final ProjectFileMapper projectFileMapper;
+
+    private static final String BUCKET_NAME = "projects";
 
     @Value("${minio.project-bucket}")
     private String projectBucket;
 
     @Override
-    public List<FileNode> getFileTree(Long projectId, Long userId) {
-
+    public List<FileNode> getFileTree(Long projectId) {
         List<ProjectFile> projectFileList = projectFileRepository.findByProjectId(projectId);
         return projectFileMapper.toListOfFileNode(projectFileList);
     }
 
     @Override
-    public FileContentResponse getFileContent(Long projectId, String path, Long userId) {
-        return null;
+    public FileContentResponse getFileContent(Long projectId, String path) {
+        String objectName = projectId + "/" + path;
+
+        try (
+                InputStream is = minioClient.getObject(
+                        GetObjectArgs.builder()
+                                .bucket(BUCKET_NAME)
+                                .object(objectName)
+                                .build())) {
+
+            String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return new FileContentResponse(path, content);
+        } catch (Exception e) {
+            log.error("Failed to read file: {}/{}", projectId, path, e);
+            throw new RuntimeException("Failed to read file content", e);
+        }
     }
 
     @Override
     public void saveFile(Long projectId, String path, String content) {
-        log.info("Saving file: {}", path);
-        // save te file metada in postgress
-        // save the content inside the minio
-
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", projectId.toString()));
-
 
         String cleanPath = path.startsWith("/") ? path.substring(1) : path;
         String objectKey = projectId + "/" + cleanPath;

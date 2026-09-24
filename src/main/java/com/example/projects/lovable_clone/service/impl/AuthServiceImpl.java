@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = authUtil.generateAccessToken(user);
 
-        return new AuthResponse("dummy", userMapper.toUserProfileResponse(user));
+        return new AuthResponse(accessToken, userMapper.toUserProfileResponse(user));
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.example.projects.lovable_clone.service.impl;
 
 import com.example.projects.lovable_clone.llm.PromptUtils;
+import com.example.projects.lovable_clone.llm.advisors.FileTreeContextAdvisor;
+import com.example.projects.lovable_clone.llm.tools.CodeGenerationTools;
 import com.example.projects.lovable_clone.security.AuthUtil;
 import com.example.projects.lovable_clone.service.ProjectFileService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,38 +26,49 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ChatClient chatClient;
     private final AuthUtil authUtil;
     private final ProjectFileService projectFileService;
+    private final FileTreeContextAdvisor fileTreeContextAdvisor;
+
     private static final Pattern FILE_TAG_PATTERN = Pattern.compile(" <file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
 
     @Override
     @PreAuthorize("@security.canEditProject(#projectId)")
     public Flux<String> streamResponse(String userMessage, Long projectId) {
         Long userId = authUtil.getCurrentUserId();
-        createChatSessonIfNotExists(projectId, userId);
+        createChatSessionIfNotExists(projectId, userId);
 
-        StringBuilder fullResponseBugger = new StringBuilder();
+        Map<String, Object> advisorParams = Map.of(
+                "userId", userId,
+                "projectId", projectId
+        );
+        StringBuilder fullResponseBuffer = new StringBuilder();
+
+        CodeGenerationTools codeGenerationTools = new CodeGenerationTools(projectFileService, projectId);
+
 
         return chatClient.prompt()
                 .system(PromptUtils.CODE_GENERATION_SYSTEM_PROMPT)
                 .user(userMessage)
+                .tools(codeGenerationTools)
                 .advisors(advisorSpec -> {
-                    advisorSpec.param("userId", userId);
-                    advisorSpec.param("projectId", projectId);
-                })
+                            advisorSpec.params(advisorParams);
+                            advisorSpec.advisors(fileTreeContextAdvisor);
+                        }
+                )
                 .stream()
                 .chatResponse()
                 .doOnNext(response -> {
                     String content = response.getResult().getOutput().getText();
-                    fullResponseBugger.append(content);
+                    fullResponseBuffer.append(content);
                 })
                 .doOnComplete(() -> {
 //                    Without the scheduler, this would block the reactive thread, potentially causing performance issues
 //                    By scheduling it on boundedElastic(), the blocking work runs on a separate thread pool designed for that purpose
                     Schedulers.boundedElastic().schedule(() -> {
-                        parseAndSaveFiles(fullResponseBugger.toString(), projectId);
+                        parseAndSaveFiles(fullResponseBuffer.toString(), projectId);
                     });
                 })
                 .doOnError(error -> {
-                    log.error("Stream error: {}", projectId);
+                    log.error("Error during streaming for projectId: {}", projectId);
                 })
                 .map(response -> Objects.requireNonNull(response.getResult().getOutput().getText()));
     }
@@ -85,7 +99,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
         }
     }
 
-    private void createChatSessonIfNotExists(Long projectId, Long userId) {
+    private void createChatSessionIfNotExists(Long projectId, Long userId) {
 
     }
 }
