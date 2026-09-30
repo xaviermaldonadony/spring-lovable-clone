@@ -20,9 +20,7 @@ public class CodeGenerationTools {
     private final Long projectId;
 
     @Tool(name = "read_files",
-            description = "Read the content of files. " +
-                    "Only input the file names present inside the FILE_TREE. " +
-                    "DO NOT input any path which is not present under the FILE_TREE.")
+            description = "Read the content of files. Only input the file names present inside the FILE_TREE. DO NOT input any path which is not present under the FILE_TREE.")
     public List<String> readFiles(
             @ToolParam(description = "List of relative paths (e.g., ['src/App.tsx'])")
             List<String> paths){
@@ -31,7 +29,9 @@ public class CodeGenerationTools {
 
         for (String path : paths) {
             String cleanPath = path.startsWith("/") ? path.substring(1) : path;
+
             log.info("Requested file: {}", cleanPath );
+
             String content =  projectFileService.getFileContent(projectId, cleanPath).content();
 
             result.add(String.format(
