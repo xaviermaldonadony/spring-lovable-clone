@@ -3,6 +3,8 @@ package com.example.projects.lovable_clone.llm;
 import com.example.projects.lovable_clone.entity.ChatEvent;
 import com.example.projects.lovable_clone.entity.ChatMessage;
 import com.example.projects.lovable_clone.enums.ChatEventType;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +13,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
+@Slf4j
 public class LlmResponseParser {
 
     /**

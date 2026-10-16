@@ -39,9 +39,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     @Override
     @PreAuthorize("@security.canViewMembers(#projectId)")
     public @Nullable List<MemberResponse> getProjectMembers(Long projectId) {
-        Long userId = authUtil.getCurrentUserId();
-        Project project = getAccessbileProject(projectId, userId);
-
         return projectMemberRepository
                 .findByIdProjectId(projectId)
                 .stream()
